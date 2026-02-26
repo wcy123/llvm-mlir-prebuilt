@@ -129,7 +129,6 @@ echo "=== Creating zip file ==="
 ZIP_OUT="$WORK_DIR/zips"
 mkdir -p "$ZIP_OUT"
 
-NAME="llvm-mlir-lld"
 PLATFORM="windows-x64"
 TMP_ZIP="$WORK_DIR/${NAME}-full.zip"
 
