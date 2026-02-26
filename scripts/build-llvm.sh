@@ -5,23 +5,23 @@
 # Build LLVM/MLIR/LLD from source and install to a local directory.
 #
 # Usage:
-#   cd /c/Develop/m/source/llvm-project
-#   bash /c/Develop/m/llvm-mlir-prebuilt/scripts/build-llvm.sh [--build-type Release|Debug] [--install-dir <path>]
+#   cd .workspace/llvm-project
+#   bash ../../scripts/build-llvm.sh [--build-type Release|Debug] [--install-dir <path>]
 #
 # Prerequisites:
 #   - Run from MSVC Developer Command Prompt (vcvars64.bat)
 #   - CMake >= 3.20
 #   - Ninja
 #
-# Paths (relative to llvm-project source root):
-#   Source:  /c/Develop/m/source/llvm-project
-#   Build:   /c/Develop/m/build/llvm-project-<buildtype>
-#   Install: /c/Develop/m/local
+# Paths are derived relative to the llvm-project source root ($PWD):
+#   Source:  $PWD                                   (.workspace/llvm-project)
+#   Build:   $PWD/../build/llvm-project-release      (.workspace/build/llvm-project-release)
+#   Install: $PWD/../local                           (.workspace/local)
 
 set -euo pipefail
 
 BUILD_TYPE="Release"
-LLVM_INSTALL="/c/Develop/m/local"
+LLVM_INSTALL=""  # derived below unless overridden by --install-dir
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -32,7 +32,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 LLVM_SRC="$(pwd)"
-LLVM_BUILD="/c/Develop/m/build/llvm-project-$(echo "$BUILD_TYPE" | tr '[:upper:]' '[:lower:]')"
+LLVM_PARENT="$(cd "$LLVM_SRC/.." && pwd)"
+LLVM_BUILD="$LLVM_PARENT/build/$(basename "$LLVM_SRC")-$(echo "$BUILD_TYPE" | tr '[:upper:]' '[:lower:]')"
+if [ -z "$LLVM_INSTALL" ]; then
+    LLVM_INSTALL="$LLVM_PARENT/local"
+fi
 
 echo "=== LLVM Build Script ==="
 echo "Source:     $LLVM_SRC"
@@ -44,7 +48,7 @@ echo ""
 # Verify we are in the llvm-project directory
 if [ ! -f "$LLVM_SRC/llvm/CMakeLists.txt" ]; then
     echo "ERROR: Run this script from the llvm-project root directory."
-    echo "       Expected: /c/Develop/m/source/llvm-project"
+    echo "       Expected to find: llvm/CMakeLists.txt under $LLVM_SRC"
     exit 1
 fi
 
@@ -86,4 +90,4 @@ cmake --install "$LLVM_BUILD" --config "$BUILD_TYPE"
 
 echo ""
 echo "=== Done. LLVM installed to $LLVM_INSTALL ==="
-echo "Run: bash scripts/package-and-upload.sh --version llvm-22.0.0-release --install-dir $LLVM_INSTALL"
+echo "Run: bash scripts/package-and-upload.sh --version llvm-<version>-release --install-dir $LLVM_INSTALL"
