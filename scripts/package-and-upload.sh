@@ -95,32 +95,25 @@ mkdir -p "$STAGE"
 
 echo "=== Staging files from install_manifest.txt ==="
 
-while IFS= read -r abs_path; do
+# Normalize INSTALL_DIR to Windows-style (C:/...) once, to match install_manifest.txt
+INSTALL_WIN="$(cygpath -m "$INSTALL_DIR")"
+
+while IFS= read -r abs_path || [[ -n "$abs_path" ]]; do
     # Strip carriage return (manifest may have Windows CRLF line endings)
     abs_path="${abs_path%$'\r'}"
-    # Normalize to forward slashes
-    abs_path="${abs_path//\\//}"
-    install_norm="${INSTALL_DIR//\\//}"
-
-    # Normalize drive letter: /c/... -> C:/... so both sides match
-    abs_norm="$abs_path"
-    if [[ "$abs_norm" =~ ^/([a-zA-Z])/(.*) ]]; then
-        abs_norm="${BASH_REMATCH[1]^}:/${BASH_REMATCH[2]}"
-    fi
-    if [[ "$install_norm" =~ ^/([a-zA-Z])/(.*) ]]; then
-        install_norm="${BASH_REMATCH[1]^}:/${BASH_REMATCH[2]}"
-    fi
+    # Normalize backslashes to forward slashes (manifest may use either)
+    abs_path="${abs_path//$'\\'/\/}"
 
     # Strip install dir prefix to get relative path
-    rel="${abs_norm#$install_norm/}"
-    if [ "$rel" = "$abs_norm" ]; then
+    rel="${abs_path#$INSTALL_WIN/}"
+    if [ "$rel" = "$abs_path" ]; then
         echo "  WARNING: not under INSTALL_DIR, skipping: $abs_path"
         continue
     fi
 
     dest="$STAGE/$rel"
     mkdir -p "$(dirname "$dest")"
-    cp "$abs_path" "$dest"
+    cp "$(cygpath -u "$abs_path")" "$dest"
 done < "$MANIFEST"
 
 # --- Package ---
