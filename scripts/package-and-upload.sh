@@ -135,7 +135,7 @@ SIZE_MB=$(du -m "$TMP_ZIP" | cut -f1)
 echo "  Full zip: ${SIZE_MB}MB"
 
 if [ "$SIZE_MB" -le "$PART_SIZE_MB" ]; then
-    OUT="$ZIP_OUT/${NAME}-${VERSION}-${PLATFORM}.zip"
+    OUT="$ZIP_OUT/${VERSION}-${PLATFORM}.zip"
     mv "$TMP_ZIP" "$OUT"
     echo "  Output: $OUT"
 else
@@ -143,16 +143,16 @@ else
     part=1
     if command -v 7z &>/dev/null; then
         7z a -tzip -mx=1 -v${PART_SIZE_MB}m \
-           "$(cygpath -w "$WORK_DIR/${NAME}-split.zip")" "$(cygpath -w "$STAGE")/*" -r > /dev/null
-        for f in "$WORK_DIR"/${NAME}-split.zip.*; do
-            out="$ZIP_OUT/${NAME}-${VERSION}-${PLATFORM}-part$(printf '%02d' $part).zip"
+           "$(cygpath -w "$WORK_DIR/${VERSION}-split.zip")" "$(cygpath -w "$STAGE")/*" -r > /dev/null
+        for f in "$WORK_DIR"/${VERSION}-split.zip.*; do
+            out="$ZIP_OUT/${VERSION}-${PLATFORM}-part$(printf '%02d' $part).zip"
             mv "$f" "$out"
             echo "  Part $part: $out ($(du -m "$out" | cut -f1)MB)"
             ((part++))
         done
     else
         split -b ${PART_SIZE_MB}m "$TMP_ZIP" "$ZIP_OUT/${NAME}-${VERSION}-${PLATFORM}-part"
-        for f in "$ZIP_OUT"/${NAME}-${VERSION}-${PLATFORM}-part*; do
+        for f in "$ZIP_OUT"/${VERSION}-${PLATFORM}-part*; do
             mv "$f" "${f}.zip"
             echo "  Part: ${f}.zip ($(du -m "${f}.zip" | cut -f1)MB)"
         done
