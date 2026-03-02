@@ -89,11 +89,23 @@ rm -rf "$LLVM_INSTALL"
 cmake --install "$LLVM_BUILD" --config "$BUILD_TYPE"
 
 # llvm-lit is a Python script; cmake --install does not install it.
-# Copy it manually so it is included in the prebuilt zip.
+# Write portable wrappers (the generated llvm-lit.py/cmd in the build dir
+# contain hardcoded build-machine paths and are not redistributable).
 echo ""
-echo "=== Installing llvm-lit ==="
-cp "$LLVM_BUILD/bin/llvm-lit.py"  "$LLVM_INSTALL/bin/llvm-lit.py"
-cp "$LLVM_BUILD/bin/llvm-lit.cmd" "$LLVM_INSTALL/bin/llvm-lit.cmd"
+echo "=== Installing llvm-lit (portable wrappers) ==="
+cat > "$LLVM_INSTALL/bin/llvm-lit.cmd" << 'EOF'
+@echo off
+python "%~dp0llvm-lit.py" %*
+exit /b %errorlevel%
+EOF
+cat > "$LLVM_INSTALL/bin/llvm-lit.py" << 'EOF'
+#!/usr/bin/env python3
+# Portable llvm-lit wrapper for prebuilt LLVM distributions.
+# Requires: pip install lit
+from lit.main import main
+if __name__ == '__main__':
+    main()
+EOF
 
 echo ""
 echo "=== Done. LLVM installed to $LLVM_INSTALL ==="

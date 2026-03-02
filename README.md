@@ -65,6 +65,17 @@ cmake -DCMAKE_PREFIX_PATH=/path/to/local ...
 CMake will find `LLVMConfig.cmake`, `MLIRConfig.cmake`, and `LLDConfig.cmake`
 automatically.
 
+### llvm-lit prerequisite
+
+The zip includes `bin/llvm-lit.cmd` and `bin/llvm-lit.py` as portable wrappers.
+They require the `lit` Python package at runtime:
+
+```bash
+pip install lit
+```
+
+`lit` is **not** bundled in the zip — it must be installed by the user.
+
 ## How to Download in CI
 
 ```yaml
