@@ -56,14 +56,16 @@ if [ -z "$NAME" ]; then
 fi
 if [ -z "$BUILD_DIR" ]; then
     case "$NAME" in
-        protobuf) BUILD_DIR="$REPO_ROOT/.workspace/build/protobuf-release" ;;
-        *)        BUILD_DIR="$REPO_ROOT/.workspace/build/llvm-project-release" ;;
+        protobuf)    BUILD_DIR="$REPO_ROOT/.workspace/build/protobuf-release" ;;
+        flatbuffers) BUILD_DIR="$REPO_ROOT/.workspace/build/flatbuffers-release" ;;
+        *)           BUILD_DIR="$REPO_ROOT/.workspace/build/llvm-project-release" ;;
     esac
 fi
 if [ -z "$INSTALL_DIR" ]; then
     case "$NAME" in
-        protobuf) INSTALL_DIR="$REPO_ROOT/.workspace/local-protobuf" ;;
-        *)        INSTALL_DIR="$REPO_ROOT/.workspace/local" ;;
+        protobuf)    INSTALL_DIR="$REPO_ROOT/.workspace/local-protobuf" ;;
+        flatbuffers) INSTALL_DIR="$REPO_ROOT/.workspace/local-flatbuffers" ;;
+        *)           INSTALL_DIR="$REPO_ROOT/.workspace/local" ;;
     esac
 fi
 
