@@ -88,6 +88,13 @@ echo "=== Installing to $LLVM_INSTALL ==="
 rm -rf "$LLVM_INSTALL"
 cmake --install "$LLVM_BUILD" --config "$BUILD_TYPE"
 
+# llvm-lit is a Python script; cmake --install does not install it.
+# Copy it manually so it is included in the prebuilt zip.
+echo ""
+echo "=== Installing llvm-lit ==="
+cp "$LLVM_BUILD/bin/llvm-lit.py"  "$LLVM_INSTALL/bin/llvm-lit.py"
+cp "$LLVM_BUILD/bin/llvm-lit.cmd" "$LLVM_INSTALL/bin/llvm-lit.cmd"
+
 echo ""
 echo "=== Done. LLVM installed to $LLVM_INSTALL ==="
 echo "Run: bash scripts/package-and-upload.sh --version llvm-<version>-release --install-dir $LLVM_INSTALL"
